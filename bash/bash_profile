@@ -1,0 +1,9 @@
+. $HOME/.profile
+
+# Debian specific display manager remains in the background for i3wm.
+# https://github.com/sddm/sddm/issues/830
+# TODO: Narrow down to a specific display manager instead of an entire debian distro.
+if [[ -f "/etc/debian_version" && -n $DISPLAY ]]; then # $DISPLAY should not be a tty.
+  xsetroot -solid black 
+fi 
+

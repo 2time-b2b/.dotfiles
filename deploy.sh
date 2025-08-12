@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Refresh bashrc before deployment.
+cp /etc/skel/.bashrc $HOME/.bashrc
+
 if [ $(uname -s) == "Darwin" ] # TODO: check if mac OS.
 then
   pkgMgr="brew install"
@@ -310,11 +313,15 @@ if [ -f "$HOME/$configName" ]; then
 fi
 chmod u+x $HOME/.bashrc_local
 
-# Debian specific display manager remains in the background for i3wm.
-# https://github.com/sddm/sddm/issues/830
-# TODO: Narrow down to a specific display manager instead of an entire debian distro.
-if [[ -f "/etc/debian_version" && -n $DISPLAY ]]; then # $DISPLAY should not be a tty.
-  echo -e "\nxsetroot -solid black " >> $HOME/.profile
+
+if [ $(uname -s) != "Darwin" ]
+then
+  # Replace .profile with a superset.
+  echo -e "\n"
+  bashProfilePath=$HOME/.bash_profile
+  modifyPath $bashProfilePath \
+    "ln -s $initDir/bash/bash_profile $bashProfilePath" \
+    "echo -e Created symlink \x1B[1;36m$initDir/bash/bash_profile -> $bashProfilePath\x1B[0m"
 fi
 
 
