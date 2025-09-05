@@ -140,11 +140,11 @@ echo -e "\n"
 echo -e "\x1B[7mInstalling Neovim...\x1B[0m"
 if [ $(uname -s) == "Linux" ]
 then
-  sudo apt install -y software-properties-common # add-apt-repository for configuring ppa
-  if ! [ "$(ls /etc/apt/sources.list.d/neovim-ppa-ubuntu-unstable-*.list 2> /dev/null | wc -l)" -eq "1" ]; then
-    sudo add-apt-repository -y ppa:neovim-ppa/unstable
-    sudo apt update && sudo apt -y upgrade
-  fi
+  nvimVersion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/neovim/neovim/releases/latest | awk -F "/" '{print $NF}')
+
+  mkdir -p $HOME/bin
+  wget -O  $HOME/bin/nvim https://github.com/neovim/neovim/releases/download/$nvimVersion/nvim-linux-x86_64.appimage
+  chmod +x $HOME/bin/nvim
 fi
 
 if ! [ -f /usr/bin/nvim ]
