@@ -9,8 +9,17 @@ return {
   },
 
   config = function()
+    local telescope = require("telescope")
     local builtin = require("telescope.builtin")
     local themes = require("telescope.themes")
+
+    telescope.setup({
+      pickers = {
+        find_files = {
+          find_command = { "rg", "--files", "--hidden", "--no-ignore",  "--glob", "!**/.git/*" }
+        }
+      }
+    })
 
     local function dropDownPicker(picker, opts)
       opts = opts or {}

@@ -287,6 +287,7 @@ modifyPath $tmuxConfigPath \
   "echo -e Created symlink \x1B[1;36m$initDir/tmux/tmux.conf -> $tmuxConfigPath\x1B[0m"
 
 # Relative line numbers when in tmux's copy mode.
+mkdir -p $HOME/.tmux
 tmuxCopyModeLNPath=$HOME/.tmux/copy_mode_with_line_numbers.sh
 modifyPath $tmuxCopyModeLNPath \
   "ln -s $initDir/tmux/copy_mode_with_line_numbers.sh $tmuxCopyModeLNPath" \
