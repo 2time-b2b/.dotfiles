@@ -186,3 +186,9 @@ bar {
         bindsym button4 nop
         bindsym button5 nop
 }
+
+
+bindsym $mod+Control+h fullscreen disable, focus left, fullscreen enable
+bindsym $mod+Control+l fullscreen disable, focus right, fullscreen enable
+bindsym $mod+Control+k fullscreen disable, focus up, fullscreen enable
+bindsym $mod+Control+j fullscreen disable, focus down, fullscreen enable
