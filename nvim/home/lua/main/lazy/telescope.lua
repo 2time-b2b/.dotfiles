@@ -1,11 +1,11 @@
 -- Highly extendable fuzzy finder over lists.
 return {
   "nvim-telescope/telescope.nvim",
-
-  tag = "0.1.7",
+  version = "*",
 
   dependencies = {
-    "nvim-lua/plenary.nvim"
+    "nvim-lua/plenary.nvim",
+    { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
   },
 
   config = function()
@@ -16,7 +16,7 @@ return {
     telescope.setup({
       pickers = {
         find_files = {
-          find_command = { "rg", "--files", "--hidden", "--no-ignore",  "--glob", "!**/.git/*" }
+          find_command = { "rg", "--files", "--hidden", "--no-ignore", "--glob", "!**/.git/*" }
         }
       }
     })

@@ -11,7 +11,7 @@ autocmd('LspAttach', {
     vim.keymap.set('n', "gr", function() vim.lsp.buf.references() end, opts)
 
     -- Use K to show documentation in preview window.
-    vim.keymap.set('n', 'K', function() vim.lsp.buf.hover() end, opts)
+    vim.keymap.set('n', 'K', function() vim.lsp.buf.hover({ border = "rounded" }) end, opts)
 
     -- Formatting selected code.
     vim.keymap.set({ 'n', 'v' }, "<leader>f", function() vim.lsp.buf.format() end, opts)
