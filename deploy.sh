@@ -135,6 +135,11 @@ then
 fi
 
 
+# Create directory local binaries.
+localBinaries=$HOME/bin
+mkdir -p $localBinaries
+
+
 # Download and install neovim.
 echo -e "\n"
 echo -e "\x1B[7mInstalling Neovim...\x1B[0m"
@@ -142,14 +147,8 @@ if [ $(uname -s) == "Linux" ]
 then
   nvimVersion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/neovim/neovim/releases/latest | awk -F "/" '{print $NF}')
 
-  mkdir -p $HOME/bin
-  wget -O  $HOME/bin/nvim https://github.com/neovim/neovim/releases/download/$nvimVersion/nvim-linux-x86_64.appimage
-  chmod +x $HOME/bin/nvim
-fi
-
-if ! [ -f /usr/bin/nvim ]
-then
-  eval $pkgMgr "neovim"
+  wget -O  $localBinaries/nvim https://github.com/neovim/neovim/releases/download/$nvimVersion/nvim-linux-x86_64.appimage
+  chmod +x $localBinaries/nvim
 fi
 
 
@@ -246,7 +245,7 @@ cd $initDir
   Current workaround involves autocmds inside 'post-update-hook' files within the 'after' directory.
 TODO
 # Install extensions for neovim using plugin manager.
-nvim  -c "autocmd User LazySync quitall" -c  'lua require("lazy").sync()'
+$localBinaries/nvim  -c "autocmd User LazySync quitall" -c  'lua require("lazy").sync()'
 
 
 if ! uname -a | grep -qEi "(Microsoft|WSL|Darwin)"
