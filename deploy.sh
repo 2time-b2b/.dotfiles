@@ -23,7 +23,7 @@ executeCommandList() {
 
   local command
   for command in "$@" ; do
-      $command
+      eval $command
   done
 }
 
@@ -132,6 +132,8 @@ then
   sudo apt install i3 -y
   sudo apt install xclip -y
   sudo apt install copyq -y
+  # Program to generate and execute DesktopEntry files of type Application.
+  sudo apt install dex -y
 fi
 
 
@@ -195,6 +197,13 @@ else
 fi
 
 
+# Config directory.
+mkdir -p $HOME/.config
+# XDG autostart entries
+autoStartPath=$HOME/.config/autostart
+mkdir -p $autoStartPath
+
+
 # Symbolic link configuration and plugins for neovim.
 echo -e "\n"
 neovimHomePath=$HOME/.config/nvim
@@ -203,8 +212,7 @@ mkdir -p $neovimHomePath
 if [[ $(find -L "$neovimHomePath" "$neovimHomePathSource" -printf "%P\n" | sort | uniq -d | wc -w) -eq 0 ]]
 then
   # Configuration does not exists.
-  cd $neovimHomePath
-  ln -s $neovimHomePathSource/* .
+  ln -s $neovimHomePathSource/* $neovimHomePath
   echo -e "Created symlink \x1B[1;36m$neovimHomePathSource/* -> $neovimHomePath\x1B[0m"
 else
   # Configuration exists or is not in sync.
@@ -233,12 +241,11 @@ else
   if [[ $response = "Y" ]]
   then
     find -L "$neovimHomePathSource" -maxdepth 1 -not -path "$neovimHomePathSource" -printf $neovimHomePath/ -printf '%P\n' | xargs rm -rf
-    cd $neovimHomePath
-    ln -s $neovimHomePathSource/* .
+    ln -s $neovimHomePathSource/* $neovimHomePath
     echo -e "Created symlink \x1B[1;36m$neovimHomePathSource/* -> $neovimHomePath\x1B[0m"
   fi
 fi
-cd $initDir
+
 
 << TODO
   Instead for running post-update hooks for every 'VimEnter' event, execute it only once during deployment.
@@ -252,29 +259,26 @@ if ! uname -a | grep -qEi "(Microsoft|WSL|Darwin)"
 then
   # i3
   echo -e "\n"
-  i3ParentDirPath=$HOME/.config
   i3DirPath=$HOME/.config/i3
   i3ConfigPathSource=$initDir/i3
-  mkdir -p $i3ParentDirPath
-  cd $i3ParentDirPath
   modifyPath $i3DirPath \
-    "ln -s $i3ConfigPathSource ." \
-    "echo -e Created symlink \x1B[1;36m$i3ConfigPathSource -> $i3DirPath\x1B[0m"
-
-  cd $initDir
+    "ln -s $i3ConfigPathSource $i3DirPath" \
+    'echo -e "Created symlink \x1B[1;36m$i3ConfigPathSource -> $i3DirPath\x1B[0m"'
 
   # copyq.
   echo -e "\n"
+  mkdir -p $HOME/.config/copyq
+  # Start copyq post login.
+  copyqAutostartPath=$autoStartPath/copyq.desktop
+  modifyPath $copyqAutostartPath \
+    "ln -s $initDir/bash/copyq/copyq.desktop $copyqAutostartPath" \
+    'echo -e "Created symlink \x1B[1;36m$initDir/bash/copyq/copyq.desktop-> $copyqAutostartPath\x1B[0m"'
   copyqShortcutsPath=$HOME/.config/copyq/copyq-commands.ini
   modifyPath $copyqShortcutsPath \
-    "rm $copyqShortcutsPath" \
+    "sudo killall copyq 2> /dev/null" \
     "ln -s $initDir/bash/copyq/copyq-commands.ini $copyqShortcutsPath" \
-    "mkdir -p $HOME/bin && ln -s $initDir/bash/copyq/copyq $HOME/bin" \
-    "chmod +x $HOME/bin/copyq" \
-    "echo -e Created symlink \x1B[1;36m$initDir/bash/copyq/copyq-commands.ini -> $copyqShortcutsPath\x1B[0m"
-    "echo -e Created symlink \x1B[1;36m$initDir/bash/copyq/copyqcopyq -> $HOME/bin/copyq\x1B[0m"
-
-  cd $initDir
+    "dex --wait $copyqAutostartPath 2> /dev/null" \
+    'echo -e "Created symlink \x1B[1;36m$initDir/bash/copyq/copyq-commands.ini -> $copyqShortcutsPath\x1B[0m"'
 fi
 
 
@@ -283,21 +287,21 @@ echo -e "\n"
 tmuxConfigPath=$HOME/.tmux.conf
 modifyPath $tmuxConfigPath \
   "ln -s $initDir/tmux/tmux.conf $tmuxConfigPath" \
-  "echo -e Created symlink \x1B[1;36m$initDir/tmux/tmux.conf -> $tmuxConfigPath\x1B[0m"
+  'echo -e "Createe symlink \x1B[1;36m$initDir/tmux/tmux.conf -> $tmuxConfigPath\x1B[0m"'
 
 # Relative line numbers when in tmux's copy mode.
 mkdir -p $HOME/.tmux
 tmuxCopyModeLNPath=$HOME/.tmux/copy_mode_with_line_numbers.sh
 modifyPath $tmuxCopyModeLNPath \
   "ln -s $initDir/tmux/copy_mode_with_line_numbers.sh $tmuxCopyModeLNPath" \
-  "echo -e Created symlink \x1B[1;36m$initDir/tmux/copy_mode_with_line_numbers.sh -> $tmuxCopyModeLNPath\x1B[0m"
+  'echo -e "Created symlink \x1B[1;36m$initDir/tmux/copy_mode_with_line_numbers.sh -> $tmuxCopyModeLNPath\x1B[0m"'
 
 # Seperate custom bash configs.
 echo -e "\n"
 bashConfigPath=$HOME/.bashrc_local
 modifyPath $bashConfigPath \
   "ln -s $initDir/bash/bashrc_local $bashConfigPath" \
-  "echo -e Created symlink \x1B[1;36m$initDir/bash/bashrc_local -> $bashConfigPath\x1B[0m"
+  'echo -e "Created symlink \x1B[1;36m$initDir/bash/bashrc_local -> $bashConfigPath\x1B[0m"'
 
 if [ $(uname -s) == "Darwin" ]
 then
@@ -321,7 +325,7 @@ then
   bashProfilePath=$HOME/.bash_profile
   modifyPath $bashProfilePath \
     "ln -s $initDir/bash/bash_profile $bashProfilePath" \
-    "echo -e Created symlink \x1B[1;36m$initDir/bash/bash_profile -> $bashProfilePath\x1B[0m"
+    'echo -e "Created symlink \x1B[1;36m$initDir/bash/bash_profile -> $bashProfilePath\x1B[0m"'
 fi
 
 
