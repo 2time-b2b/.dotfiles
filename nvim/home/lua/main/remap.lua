@@ -17,27 +17,9 @@ vim.keymap.set("n", "N", "Nzzzv")
 
 
 -- Copy text to system clipboard.
-local function isWSL()
-  local output = vim.fn.systemlist "uname -r"
-  return not not string.find(output[1], "[Mm]icrosoft")
-end
-
-if (isWSL()) then
-  vim.keymap.set("v", "<leader>y", "y:new ~/.vimbuffer<CR>VGp:x<CR> | :!cat ~/.vimbuffer | clip.exe <CR><CR>")
-  vim.g.clipboard = {
-    name = 'WslClipboard',
-    copy = {
-      ['+'] = 'clip.exe',
-    },
-    paste = {
-      ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("r", ""))', ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("r", ""))',
-    },
-    cache_enabled = 0,
-  }
-end
-
 vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
+
 vim.keymap.set({"n", "v"}, "<leader>p", [["+p]])
 
 
